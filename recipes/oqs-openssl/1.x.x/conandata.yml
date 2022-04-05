@@ -1,0 +1,10 @@
+sources:
+  1.1.1k:
+    sha256: "3cb52d05b04073507850caf694c986a2a8ad33719654840d5aa09b917656e253"
+    url: [
+      "https://github.com/open-quantum-safe/openssl/zipball/OQS-OpenSSL-1_1_1-stable-snapshot-2022-01"
+    ]
+patches:
+  1.1.1k:
+    - patch_file: patches/dont_install_liboqs.patch
+      base_path: source_subfolder

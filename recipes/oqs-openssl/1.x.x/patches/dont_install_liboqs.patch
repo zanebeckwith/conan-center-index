@@ -1,0 +1,114 @@
+--- Configurations/unix-Makefile.tmpl	2022-04-06 10:50:49.000000000 -0400
++++ Configurations/unix-Makefile.tmpl	2022-04-06 10:52:31.000000000 -0400
+@@ -340,12 +340,10 @@
+                                               @{$config{includes}}),
+                               @{$config{cppflags}}) -}
+ CNF_CFLAGS={- join(' ', $target{cflags} || (),
+-                        "-Ioqs/include",
+                         @{$config{cflags}}) -}
+ CNF_CXXFLAGS={- join(' ', $target{cxxflags} || (),
+                           @{$config{cxxflags}}) -}
+ CNF_LDFLAGS={- join(' ', $target{lflags} || (),
+-                         "-Loqs/lib",
+                          @{$config{lflags}}) -}
+ CNF_EX_LIBS={- join(' ', $target{ex_libs} || (),
+                          "-loqs",
+@@ -453,7 +451,7 @@
+ {- dependmagic('build_programs'); -}: build_programs_nodep
+ 
+ build_generated: $(GENERATED_MANDATORY)
+-build_libs_nodep: libcrypto.pc libssl.pc openssl.pc liboqs.pc
++build_libs_nodep: libcrypto.pc libssl.pc openssl.pc
+ build_engines_nodep: $(ENGINES)
+ build_programs_nodep: $(PROGRAMS) $(SCRIPTS)
+ 
+@@ -524,13 +522,11 @@
+ 	$(RM) core
+ 	$(RM) tags TAGS doc-nits
+ 	$(RM) -r test/test-runs
+-	$(RM) openssl.pc libcrypto.pc libssl.pc liboqs.pc
+-	-$(RM) `find . -type l \! -name '.*' \! -name 'liboqs.*' -print`
++	$(RM) openssl.pc libcrypto.pc libssl.pc
+ 
+ distclean: clean
+ 	$(RM) configdata.pm
+ 	$(RM) Makefile
+-	-$(RM) -rf oqs
+ 
+ # We check if any depfile is newer than Makefile and decide to
+ # concatenate only if that is true.
+@@ -613,13 +609,6 @@
+ 		cp $$i "$(DESTDIR)$(INSTALLTOP)/include/openssl/$$fn"; \
+ 		chmod 644 "$(DESTDIR)$(INSTALLTOP)/include/openssl/$$fn"; \
+ 	done
+-	@$(PERL) $(SRCDIR)/util/mkdir-p.pl "$(DESTDIR)$(INSTALLTOP)/include/oqs"
+-	@set -e; for i in $(SRCDIR)/oqs/include/oqs/*.h; do \
+-		fn=`basename $$i`; \
+-		$(ECHO) "install $$i -> $(DESTDIR)$(INSTALLTOP)/include/oqs/$$fn"; \
+-		cp $$i "$(DESTDIR)$(INSTALLTOP)/include/oqs/$$fn"; \
+-		chmod 644 "$(DESTDIR)$(INSTALLTOP)/include/oqs/$$fn"; \
+-	done
+ 	@$(PERL) $(SRCDIR)/util/mkdir-p.pl "$(DESTDIR)$(libdir)"
+ 	@set -e; for l in $(INSTALL_LIBS); do \
+ 		fn=`basename $$l`; \
+@@ -675,9 +664,6 @@
+ 	@$(ECHO) "install openssl.pc -> $(DESTDIR)$(libdir)/pkgconfig/openssl.pc"
+ 	@cp openssl.pc "$(DESTDIR)$(libdir)/pkgconfig"
+ 	@chmod 644 "$(DESTDIR)$(libdir)/pkgconfig/openssl.pc"
+-	@$(ECHO) "install liboqs.pc -> $(DESTDIR)$(libdir)/pkgconfig/liboqs.pc"
+-	@cp liboqs.pc $(DESTDIR)$(libdir)/pkgconfig
+-	@chmod 644 $(DESTDIR)$(libdir)/pkgconfig/liboqs.pc
+ 
+ uninstall_dev: uninstall_runtime_libs
+ 	@$(ECHO) "*** Uninstalling development files"
+@@ -720,7 +706,6 @@
+ 	$(RM) "$(DESTDIR)$(libdir)/pkgconfig/libcrypto.pc"
+ 	$(RM) "$(DESTDIR)$(libdir)/pkgconfig/libssl.pc"
+ 	$(RM) "$(DESTDIR)$(libdir)/pkgconfig/openssl.pc"
+-	$(RM) "$(DESTDIR)$(libdir)/pkgconfig/liboqs.pc"
+ 	-$(RMDIR) "$(DESTDIR)$(libdir)/pkgconfig"
+ 	-$(RMDIR) "$(DESTDIR)$(libdir)"
+ 
+@@ -778,18 +763,6 @@
+ 		      "$(DESTDIR)$(libdir)/$$fn"; \
+ 		: {- output_on() if windowsdll(); "" -}; \
+ 	done
+-ifneq (,$(wildcard oqs/lib/liboqs.a))
+-	@install oqs/lib/liboqs.a $(DESTDIR)$(libdir)
+-endif
+-ifneq (,$(wildcard oqs/lib/liboqs.so.0*))
+-	@set -e; for i in oqs/lib/liboqs.so.0.*; do \
+-		fn=`basename $$i`; \
+-		$(ECHO) "install oqs/lib/$$fn $(DESTDIR)$(libdir)"; \
+-		$(ECHO) "cd $(DESTDIR)$(libdir) && ln -sf $$fn liboqs.so && ln -sf $$fn liboqs.so.0 && cd -"; \
+-		install oqs/lib/$$fn $(DESTDIR)$(libdir); \
+-		cd $(DESTDIR)$(libdir) && ln -sf $$fn liboqs.so && ln -sf $$fn liboqs.so.0 && cd -; \
+-	done
+-endif
+ 
+ 
+ install_programs: install_runtime_libs build_programs
+@@ -1013,23 +986,6 @@
+ 	    echo 'Libs: -L$${libdir} -lssl'; \
+ 	    echo 'Cflags: -I$${includedir}' ) > libssl.pc
+ 
+-liboqs.pc:
+-	@ ( echo 'prefix=$(INSTALLTOP)'; \
+-	    echo 'exec_prefix=$${prefix}'; \
+-	    if [ -n "$(LIBDIR)" ]; then \
+-	        echo 'libdir=$${exec_prefix}/$(LIBDIR)'; \
+-	    else \
+-	        echo 'libdir=$(libdir)'; \
+-	    fi; \
+-	    echo 'includedir=$${prefix}/include'; \
+-	    echo ''; \
+-	    echo 'Name: liboqs'; \
+-	    echo 'Description: Open Quantum Safe crypto libraries'; \
+-	    echo 'Version: '$(VERSION); \
+-	    echo 'Requires.private: libssl libcrypto'; \
+-	    echo 'Libs: -L$${libdir} -loqs'; \
+-	    echo 'Cflags: -I$${includedir}' ) > liboqs.pc
+-
+ openssl.pc:
+ 	@ ( echo 'prefix=$(INSTALLTOP)'; \
+ 	    echo 'exec_prefix=$${prefix}'; \
