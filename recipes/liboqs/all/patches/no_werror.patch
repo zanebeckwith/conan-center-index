@@ -1,0 +1,10 @@
+--- .CMake/compiler_opts.cmake	2021-12-16 13:34:53.000000000 -0500
++++ .CMake/compiler_opts.cmake	2022-04-07 11:53:48.000000000 -0400
+@@ -62,7 +62,6 @@
+ endif()
+ 
+ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+-    add_compile_options(-Werror)
+     add_compile_options(-Wall)
+     add_compile_options(-Wextra)
+     add_compile_options(-Wpedantic)
