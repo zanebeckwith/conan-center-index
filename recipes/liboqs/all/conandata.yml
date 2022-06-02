@@ -1,7 +1,7 @@
 sources:
   "0.7.1":
-    url: "https://github.com/open-quantum-safe/liboqs/archive/0.7.1.tar.gz"
-    sha256: "c8a1ffcfd4facc90916557c0efae9a28c46e803b088d0cb32ee7b0b010555d3a"
+    url: "https://github.com/zanebeckwith/liboqs/archive/ios-build.tar.gz"
+      # sha256: "c8a1ffcfd4facc90916557c0efae9a28c46e803b088d0cb32ee7b0b010555d3a"
 patches:
   "0.7.1":
     - patch_file: patches/no_werror.patch
