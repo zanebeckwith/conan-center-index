@@ -566,6 +566,7 @@ class OpenSSLConan(ConanFile):
                              '--with-zlib-lib="%s"' % lib_path])
 
         args.extend(['-L%s' % self.deps_cpp_info['liboqs'].lib_paths[0]])
+        args.extend(['-framework ' + fwk for fwk in self.deps_cpp_info['liboqs'].frameworks])
 
         for option_name in self.options.values.fields:
             activated = getattr(self.options, option_name)
